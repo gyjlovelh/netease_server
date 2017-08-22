@@ -6,6 +6,10 @@ var SongSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    uploader: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     singer: {
         type: String,
         required: true

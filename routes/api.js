@@ -20,6 +20,14 @@ router.get('/songs', function(req, res, next) {
         res.send({result: result});
     });
 });
+/**
+ * 根据上传人查找歌曲
+ */
+router.get('/getSongsByUploader', function(req, res, next) {
+    SongDao.getSongsByUploader(req.query.id, function(result) {
+        res.send({result: result});
+    });
+});
 router.get('/types', function(req, res, next) {
     res.send({result: appData.types});
 });
@@ -76,6 +84,7 @@ router.post('/upload/song', function(req, res, next) {
         // 储存数据
         var _data = {
             name: fields.name,
+            uploader: fields.uploader,
             singer: fields.singer,
             types: JSON.parse(fields.types),
             cover: _coverNewName,
@@ -86,10 +95,29 @@ router.post('/upload/song', function(req, res, next) {
         });
     });
 });
+/**
+ * 用户注册
+ */
 router.post('/register', function(req, res, next) {
-    console.log('param', req.query);
-
-    res.send({result: req.body});
+    UserDao.register(req.body, function(result) {
+        res.send({result: result});
+    });
+});
+/**
+ * 用户登录
+ */
+router.post('/login', function(req, res, next) {
+    UserDao.login(req.body, function(result) {
+        res.send({result: result});
+    });
+});
+/**
+ * 根据用户id查询用户信息
+ */
+router.post('/findUserById', function(req, res, next) {
+    UserDao.findUserById(req.body, function(result) {
+        res.send({result: result});
+    });
 });
 
 module.exports = router;
