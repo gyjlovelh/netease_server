@@ -9,8 +9,11 @@ var MvSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    desc: String,
     createtime: {
         type: Date,
         default: Date.now
     }
 });
+
+module.exports = db.model('Mv', MvSchema);
