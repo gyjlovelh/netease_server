@@ -21,11 +21,21 @@ module.exports = {
         Mv.find(
             {uploader: id}, 
             {_id: 1, name: 1, singer: 1, src: 1, uploader: 1, desc: 1, createtime: 1}, 
-            {}, 
+            {},
             function(err, result) {
                 if (err) throw err;
                 cb(result);
             }
         );
+    },
+    getAllMv: function (cb) {
+        Mv.find(
+            {},
+            {_id: 1,name: 1, singer: 1, src: 1, uploader: 1, desc: 1, createtime: 1},
+            {}
+        ).populate('uploader').exec(function (err, result) {
+            if (err) throw err;
+            cb(result);
+        });
     }
-}
+};

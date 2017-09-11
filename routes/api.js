@@ -8,6 +8,7 @@ var path =  require('path');
 var UserDao = require('../dao/UserDao.js');
 var SongDao = require('../dao/SongDao.js');
 var MvDao = require('../dao/MvDao.js');
+var GeDanDao = require('../dao/GeDanDao.js');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -40,6 +41,14 @@ router.get('/getMvByUploader', function(req, res, next) {
     MvDao.getMvByUploader(req.query.id, function(result) {
         res.send({result: result});
     });
+});
+/**
+ * 查找所有Mv
+ */
+router.get('/getAllMv', function (req, res, next) {
+   MvDao.getAllMv(function (result) {
+        res.send({result: result});
+   });
 });
 router.get('/types', function(req, res, next) {
     res.send({result: appData.types});
@@ -149,11 +158,90 @@ router.post('/upload/mv', function(req, res, next) {
     });
 });
 /**
+ * 上传用户头像
+ */
+router.post('/upload/userCover', function (req, res, next) {
+     var form = new formidable.IncomingForm();
+     form.uploadDir = 'public/resource/tmp';
+     form.parse(req, function (err, fileds, files) {
+         var _cover = files.cover;
+         var _coverExtName = path.extname(_cover.name);
+         var _coverNewName = (_cover.path.split('upload_')[0] + _cover.path.split('upload_')[1] + _coverExtName).replace('/tmp/', '/' + _coverExtName.replace('.', '') + '/');
+         var _coverOldPath = __dirname.replace('/routes','') + '/' + _cover.path;
+         var _coverNewPath = __dirname.replace('/routes', '') + '/' + _coverNewName;
+
+         var _coverDir = __dirname.replace('/routes', '') + '/public/resource/' + _coverExtName.replace('.', '');
+         try{
+             fs.statSync(_coverDir);
+         } catch (error) {
+             fs.mkdirSync(_coverDir);
+         }
+         fs.readFile(_coverOldPath, function(err, data) {
+             if (err) throw err;
+             fs.writeFile(_coverNewPath, data, function(err) {
+                 if (err) throw err;
+                 fs.unlink(_coverOldPath, function(err) {
+                     if (err) throw err;
+                 });
+             });
+         });
+         // 储存数据
+         var _data = {
+             id: fileds.id,
+             cover: _coverNewName
+         };
+         UserDao.uploadCover(_data, function(result) {
+             res.send(result);
+         });
+     });
+
+});
+/**
+ * 上传歌单封面
+ */
+router.post('/upload/gdCover', function (req, res, next) {
+    var form = new formidable.IncomingForm();
+    form.uploadDir = 'public/resource/tmp';
+    form.parse(req, function (err, fileds, files) {
+        var _cover = files.cover;
+        var _coverExtName = path.extname(_cover.name);
+        var _coverNewName = (_cover.path.split('upload_')[0] + _cover.path.split('upload_')[1] + _coverExtName).replace('/tmp/', '/' + _coverExtName.replace('.', '') + '/');
+        var _coverOldPath = __dirname.replace('/routes','') + '/' + _cover.path;
+        var _coverNewPath = __dirname.replace('/routes', '') + '/' + _coverNewName;
+
+        var _coverDir = __dirname.replace('/routes', '') + '/public/resource/' + _coverExtName.replace('.', '');
+        try{
+            fs.statSync(_coverDir);
+        } catch (error) {
+            fs.mkdirSync(_coverDir);
+        }
+        fs.readFile(_coverOldPath, function(err, data) {
+            if (err) throw err;
+            fs.writeFile(_coverNewPath, data, function(err) {
+                if (err) throw err;
+                fs.unlink(_coverOldPath, function(err) {
+                    if (err) throw err;
+                });
+            });
+        });
+        // 储存数据
+        var _data = {
+            _id: fileds._id,
+            cover: _coverNewName
+        };
+        GeDanDao.updateGD(_data, function(result) {
+            res.send(result);
+        });
+    });
+});
+/**
  * 用户注册
  */
 router.post('/register', function(req, res, next) {
     UserDao.register(req.body, function(result) {
-        res.send({result: result});
+        GeDanDao.createGeDan({creator: result._id, name: '我的最爱'}, function () {
+            res.send({result: result});
+        });
     });
 });
 /**
@@ -169,6 +257,54 @@ router.post('/login', function(req, res, next) {
  */
 router.post('/findUserById', function(req, res, next) {
     UserDao.findUserById(req.body, function(result) {
+        res.send({result: result});
+    });
+});
+/**
+ * 个人设置
+ */
+router.post('/updateUser', function (req, res, next) {
+    UserDao.updateUser(req.body, function (result) {
+        res.send({result: result});
+    });
+});
+/**
+ * 新建歌单
+ */
+router.post('/createGeDan', function (req, res, next) {
+    GeDanDao.createGeDan(req.body, function (result) {
+        res.send({result: result});
+    });
+});
+/**
+ * 查询用户创建的歌单
+ */
+router.get('/findGDByUserId', function (req, res, next) {
+    GeDanDao.findGDByUserId(req.query.id, function (result) {
+        res.send({result: result});
+    });
+});
+/**
+ * 查询所有歌单信息
+ */
+router.get('/findAllGD', function (req, res, next) {
+    GeDanDao.findAllGD(function (result) {
+        res.send({result: result});
+    });
+});
+/**
+ * 查询歌单详情
+ */
+router.get('/findGDById', function (req, res, next) {
+    GeDanDao.findGDById(req.query.id, function (result) {
+        res.send({result: result});
+    });
+});
+/**
+ * 设置歌单信息
+ */
+router.post('/updateGD', function (req, res, next) {
+    GeDanDao.updateGD(req.body, function (result) {
         res.send({result: result});
     });
 });
