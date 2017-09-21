@@ -22,6 +22,36 @@ app.set('port', port);
 var server = http.createServer(app);
 
 /**
+ * Create WebSocket Server
+ */
+var ws = require('nodejs-websocket');
+var ChatDao = require('../dao/ChatDao.js');
+
+var wsServer = ws.createServer(conn => {
+    ChatDao.findAllChats(function (result) {
+        conn.sendText(JSON.stringify(result));
+    });
+    conn.on('text', function (str) {
+        console.log('msg:', str);
+        ChatDao.saveChat(JSON.parse(str), function () {
+            ChatDao.findAllChats(function (result) {
+                console.log('result:', result);
+                wsServer.connections.forEach(function (conn) {
+                    conn.sendText(JSON.stringify(result));
+                });
+            });
+        });
+    });
+    conn.on('close', (code, reason) => {
+        console.log('connection close....');
+    });
+    conn.on('error', function (err) {
+        console.log('err:', err);
+    });
+});
+wsServer.listen(8181);
+
+/**
  * Listen on provided port, on all network interfaces.
  */
 

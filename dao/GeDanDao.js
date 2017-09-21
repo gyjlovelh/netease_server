@@ -41,7 +41,14 @@ module.exports = {
             {_id: param},
             {creator: 1, name: 1, label: 1, desc: 1, cover: 1, createtime: 1, songs: 1, num: 1},
             {}
-        ).populate('creator').exec(function (err, result) {
+        ).populate('creator').populate(
+            {
+                path: 'songs',
+                populate: {
+                    path: 'uploader'
+                }
+            }
+        ).exec(function (err, result) {
             if (err) throw err;
             cb(result);
         });
@@ -57,5 +64,15 @@ module.exports = {
                 }
             }
         );
+    },
+    addSongToGD: function (param, cb) {
+        GeDao.update(
+            {_id: param._id},
+            {$push: {songs: param.songs}},
+            function (err) {
+                if (err) throw err;
+                cb('ok');
+            }
+        )
     }
 };

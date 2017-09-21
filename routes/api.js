@@ -9,6 +9,7 @@ var UserDao = require('../dao/UserDao.js');
 var SongDao = require('../dao/SongDao.js');
 var MvDao = require('../dao/MvDao.js');
 var GeDanDao = require('../dao/GeDanDao.js');
+var RoomDao = require('../dao/RoomDao.js');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -305,6 +306,41 @@ router.get('/findGDById', function (req, res, next) {
  */
 router.post('/updateGD', function (req, res, next) {
     GeDanDao.updateGD(req.body, function (result) {
+        res.send({result: result});
+    });
+});
+/**
+ * 收藏歌曲到歌单
+ */
+router.post('/addSongToGD', function (req, res, next) {
+    GeDanDao.addSongToGD(req.body, function (result) {
+        res.send({result: result});
+    });
+});
+
+/**
+ * 拖拽页面接口
+ */
+router.get('/findAllRoom', function (req, res, next) {
+    RoomDao.findAllRoom(function (result) {
+        res.send({result: result});
+    });
+});
+
+router.post('/createRoom', function (req, res, next) {
+    RoomDao.createRoom(req.body, function (result) {
+        res.send({result: result});
+    }) ;
+});
+
+router.post('/updateRoom', function (req, res, next) {
+    RoomDao.updateRoom(req.body, function (result) {
+        res.send({result: result});
+    });
+});
+
+router.post('/deleteRoom', function (req, res, next) {
+    RoomDao.deleteRoom(req.body, function (result) {
         res.send({result: result});
     });
 });
